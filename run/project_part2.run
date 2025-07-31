@@ -1,0 +1,37 @@
+# settings
+option solver cplexasl;
+option cplex_options 'sensitivity';
+option show_stats 1;
+option presolve 0;
+
+# data and model loading
+model project_part2.mod;
+
+data airplanes.dat;
+data flights.dat;
+data revenue.dat;
+data cost.dat;
+
+solve;
+
+# display results
+display profit;
+_display X;
+_display Y;
+
+# save results
+printf "Profit: $%d", profit > "part2_solution.txt";
+printf "\nAirplane Assignment (X[f,a] = 1):" >> "part2_solution.txt";
+printf "\nf\ta\n" >> "part2_solution.txt";
+for {f in FLIGHT, a in AIRPLANE: X[f,a] = 1} {printf "%d\t%d\n", f, a >> "part2_solution.txt";}
+printf "\nLeased Airplane (Y[a] = 1):\n" >> "part2_solution.txt";
+for {a in AIRPLANE: Y[a] = 1} {printf "Airplane %d\n", a >> "part2_solution.txt";}
+printf "\nS Assignment (S[f,a] = 1):\n" >> "part2_solution.txt";
+printf "f\ta\n" >> "part2_solution.txt";
+for {(f,a) in VALID_INIT: S[f,a] = 1} {printf "%d\t%d\n", f, a >> "part2_solution.txt";}; 
+printf "\nZ Assignment (Z[k,m,a] = 1):" >> "part2_solution.txt";
+printf "\nk\tm\ta\n" >> "part2_solution.txt";
+for {(k,m) in VALID_TRANSIT, a in AIRPLANE: Z[k,m,a] = 1} {printf "%d\t%d\t%d\n", k, m, a >> "part2_solution.txt";}
+printf "\nL Assignment (L[f,a] = 1):" >> "part2_solution.txt";
+printf "\nf\ta\n" >> "part2_solution.txt";
+for {f in FLIGHT, a in AIRPLANE: L[f,a] = 1} {printf "%d\t%d\n", f, a >> "part2_solution.txt";}

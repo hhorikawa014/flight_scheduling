@@ -1,0 +1,55 @@
+# settings
+option solver cplexasl;
+option cplex_options 'sensitivity';
+option show_stats 1;
+option presolve 0;
+
+# data and model loading
+model project_part5_experiment.mod;
+
+data flights.dat;
+data crew_cost.dat;
+data crew_init_loc.dat;
+
+solve;
+
+# display results
+display total_cost;
+
+# save results
+printf "Total Cost: $%d", total_cost > "part5_exp_solution.txt";
+
+printf "\nCaptain Assignment (X_cap[f,c] = 1):" >> "part5_exp_solution.txt";
+printf "\nf\tc\n" >> "part5_exp_solution.txt";
+for {f in FLIGHT, c in CAPTAIN: X_cap[f,c] = 1} {printf "%d\t%d\n", f, c >> "part5_exp_solution.txt";}
+printf "\nFO Assignment (X_fo[f,fo] = 1):" >> "part5_exp_solution.txt";
+printf "\nf\tfo\n" >> "part5_exp_solution.txt";
+for {f in FLIGHT, fo in FO: X_fo[f,fo] = 1} {printf "%d\t%d\n", f, fo >> "part5_exp_solution.txt";}
+
+printf "\nInit Flight Assignment for Captain (S_cap[f,c] = 1):\n" >> "part5_exp_solution.txt";
+printf "f\tc\n" >> "part5_exp_solution.txt";
+for {f in FLIGHT, c in CAPTAIN: S_cap[f,c] = 1} {printf "%d\t%d\n", f, c >> "part5_exp_solution.txt";};
+printf "\nInit Flight Assignment for FO (S_fo[f,fo] = 1):\n" >> "part5_exp_solution.txt";
+printf "f\tfo\n" >> "part5_exp_solution.txt";
+for {f in FLIGHT, fo in FO: S_fo[f,fo] = 1} {printf "%d\t%d\n", f, fo >> "part5_exp_solution.txt";};
+
+printf "\nFinal Flight Assignment for Captain (L_cap[f,c] = 1):\n" >> "part5_exp_solution.txt";
+printf "f\tc\n" >> "part5_exp_solution.txt";
+for {f in FLIGHT, c in CAPTAIN: L_cap[f,c] = 1} {printf "%d\t%d\n", f, c >> "part5_exp_solution.txt";};
+printf "\nFinal Flight Assignment for FO (L_fo[f,fo] = 1):\n" >> "part5_exp_solution.txt";
+printf "f\tfo\n" >> "part5_exp_solution.txt";
+for {f in FLIGHT, fo in FO: L_fo[f,fo] = 1} {printf "%d\t%d\n", f, fo >> "part5_exp_solution.txt";};
+
+printf "\nTransit Assignment for Captain (Z_cap[k,m,c] = 1):" >> "part5_exp_solution.txt";
+printf "\nk\tm\tc\n" >> "part5_exp_solution.txt";
+for {(k,m,c) in VALID_CAPTAIN_TRANSIT: Z_cap[k,m,c] = 1} {printf "%d\t%d\t%d\n", k, m, c >> "part5_exp_solution.txt";}
+printf "\nTransit Assignment for FO (Z_fo[k,m,fo] = 1):" >> "part5_exp_solution.txt";
+printf "\nk\tm\tfo\n" >> "part5_exp_solution.txt";
+for {(k,m,fo) in VALID_FO_TRANSIT: Z_fo[k,m,fo] = 1} {printf "%d\t%d\t%d\n", k, m, fo >> "part5_exp_solution.txt";}
+
+printf "\nShift for Captain in Minutes:\n" >> "part5_exp_solution.txt";
+printf "%-6s %-6s %-6s %-6s\n", "cap", "start", "end", "dur" >> "part5_exp_solution.txt";
+for {c in CAPTAIN} {printf "%-6s %-6d %-6d %-6d\n", c, ST_cap[c], ET_cap[c], ET_cap[c]-ST_cap[c] >> "part5_exp_solution.txt";};
+printf "\nShift for FO in Minutes:\n" >> "part5_exp_solution.txt";
+printf "%-6s %-6s %-6s %-6s\n", "fo", "start", "end", "dur" >> "part5_exp_solution.txt";
+for {fo in FO} {printf "%-6s %-6d %-6d %-6d\n", fo, ST_fo[fo], ET_fo[fo], ET_fo[fo]-ST_fo[fo] >> "part5_exp_solution.txt";};
