@@ -1,1 +1,1 @@
-Look at the report.pdf for more info.
+Go to report.pdf for the project report.
